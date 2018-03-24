@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# variables 
+# variables
 
 NGINX_VER=1.13.9
 
@@ -47,10 +47,10 @@ else
 	ngx_pagespeed=""
 fi
 
-## install prerequisites 
+## install prerequisites
 
 echo -ne "       Installing dependencies               [..]\\r"
-apt-get update >> /tmp/nginx-ee.log 2>&1 
+apt-get update >> /tmp/nginx-ee.log 2>&1
 apt-get install -y git build-essential libtool automake autoconf zlib1g-dev \
 libpcre3-dev libgd-dev libssl-dev libxslt1-dev libxml2-dev libgeoip-dev \
 libgoogle-perftools-dev libperl-dev libpam0g-dev libxslt1-dev >> /tmp/nginx-ee.log 2>&1
@@ -69,7 +69,7 @@ fi
 ## clean previous compilation
 
 rm -rf /usr/local/src/* >> /tmp/nginx-ee.log 2>&1
-cd /usr/local/src || exit 
+cd /usr/local/src || exit
 
 ## get additionals modules
 
@@ -86,10 +86,11 @@ git clone https://github.com/openresty/srcache-nginx-module.git >> /tmp/nginx-ee
 git clone https://github.com/openresty/set-misc-nginx-module.git >> /tmp/nginx-ee.log 2>&1
 git clone https://github.com/FRiCKLE/ngx_coolkit.git >> /tmp/nginx-ee.log 2>&1
 git clone https://github.com/sto/ngx_http_auth_pam_module.git >> /tmp/nginx-ee.log 2>&1
+git clone https://github.com/leev/ngx_http_geoip2_module.git >> /tmp/nginx-ee.log 2>&1
 
 wget https://people.freebsd.org/~osa/ngx_http_redis-0.3.8.tar.gz >> /tmp/nginx-ee.log 2>&1
 tar -zxf ngx_http_redis-0.3.8.tar.gz >> /tmp/nginx-ee.log 2>&1
-mv ngx_http_redis-0.3.8 ngx_http_redis 
+mv ngx_http_redis-0.3.8 ngx_http_redis
 
 if [ $? -eq 0 ]; then
 			echo -ne "       Downloading additionals modules        [${CGREEN}OK${CEND}]\\r"
@@ -121,7 +122,7 @@ if [ $? -eq 0 ]; then
 			exit 1
 fi
 
-## get openssl 
+## get openssl
 
 echo -ne "       Downloading openssl                    [..]\\r"
 
@@ -144,14 +145,14 @@ if [ $? -eq 0 ]; then
 			exit 1
 fi
 
-## get naxsi 
+## get naxsi
 
 if [ "$naxsi" = "y" ]
 then
   echo -ne "       Downloading naxsi                      [..]\\r"
 	git clone https://github.com/nbs-system/naxsi.git --branch http2 >> /tmp/nginx-ee.log 2>&1
   cd /usr/local/src || exit
-  
+
   if [ $? -eq 0 ]; then
   			echo -ne "       Downloading naxsi                      [${CGREEN}OK${CEND}]\\r"
   			echo -ne "\\n"
@@ -173,7 +174,7 @@ then
   echo -ne "       Downloading pagespeed               [..]\\r"
 	bash <(curl -f -L -sS https://ngxpagespeed.com/install) --ngx-pagespeed-version latest-beta -b /usr/local/src >> /tmp/nginx-ee.log 2>&1
   cd /usr/local/src/ || exit
-  
+
   if [ $? -eq 0 ]; then
   			echo -ne "       Downloading pagespeed                  [${CGREEN}OK${CEND}]\\r"
   			echo -ne "\\n"
@@ -232,7 +233,7 @@ echo -ne "       Configure nginx                       [..]\\r"
  $ngx_naxsi \
  --with-cc-opt='-g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fPIC' \
  --with-ld-opt='-Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,-z,now -Wl,--as-needed -pie' \
- --prefix=/usr/share/nginx  \
+ --prefix=/usr/sbin/nginx  \
  --conf-path=/etc/nginx/nginx.conf \
  --http-log-path=/var/log/nginx/access.log \
  --error-log-path=/var/log/nginx/error.log \
@@ -269,11 +270,12 @@ echo -ne "       Configure nginx                       [..]\\r"
  --add-module=/usr/local/src/ngx_http_redis   \
  --add-module=/usr/local/src/ngx_brotli  \
  --add-module=/usr/local/src/ngx_http_auth_pam_module \
+ --add-module=/usr/local/src/ngx_http_geoip2_module \
  $ngx_pagespeed \
  --with-openssl=/usr/local/src/openssl \
  --with-openssl-opt=enable-tls1_3 \
  --sbin-path=/usr/sbin/nginx  >> /tmp/nginx-ee.log 2>&1
- 
+
  if [ $? -eq 0 ]; then
  			echo -ne "       Configure nginx                        [${CGREEN}OK${CEND}]\\r"
  			echo -ne "\\n"
@@ -284,11 +286,11 @@ echo -ne "       Configure nginx                       [..]\\r"
  			echo ""
  			exit 1
  fi
- 
+
  ## compilation
- 
+
  echo -ne "       Compile nginx                          [..]\\r"
- 
+
 make -j "$(nproc)" >> /tmp/nginx-ee.log 2>&1
 make install >> /tmp/nginx-ee.log 2>&1
 
