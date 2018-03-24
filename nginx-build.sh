@@ -233,7 +233,7 @@ echo -ne "       Configure nginx                       [..]\\r"
  $ngx_naxsi \
  --with-cc-opt='-g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fPIC' \
  --with-ld-opt='-Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,-z,now -Wl,--as-needed -pie' \
- --prefix=/usr/sbin/nginx  \
+ --prefix=/usr/share/nginx  \
  --conf-path=/etc/nginx/nginx.conf \
  --http-log-path=/var/log/nginx/access.log \
  --error-log-path=/var/log/nginx/error.log \
